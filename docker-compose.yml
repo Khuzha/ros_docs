@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+
+  db:
+    image: postgres:14.2-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    networks:
+      - project
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  wiki:
+    image: ghcr.io/requarks/wiki:2
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      - project
+    ports:
+      - "4021:3000"
+
+networks:
+  project:
+    driver: bridge
+
+volumes:
+  db-data:
